@@ -496,7 +496,7 @@ class Build(JenkinsBase):
 
     def stream_logs(self):
         """
-        Return generator which streams parts of text console. 
+        Return generator which streams parts of text console.
         """
         url = "%s/logText/progressiveText" % self.baseurl
         size = 0
