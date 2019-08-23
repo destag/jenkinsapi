@@ -494,7 +494,7 @@ class Build(JenkinsBase):
         else:
             raise JenkinsAPIException('Unknown content type for console')
 
-    def stream_logs(self):
+    def stream_logs(self, interval=0):
         """
         Return generator which streams parts of text console.
         """
@@ -502,16 +502,18 @@ class Build(JenkinsBase):
         size = 0
         more_data = True
         while more_data:
-            resp = self.job.jenkins.requester.get_url(url, params={'size': size})
+            resp = self.job.jenkins.requester.get_url(url, params={'start': size})
             content = resp.content
-            if isinstance(content, str):
-                yield content
-            elif isinstance(content, bytes):
-                yield content.decode('ISO-8859-1')
-            else:
-                raise JenkinsAPIException('Unknown content type for console')
+            if content:
+                if isinstance(content, str):
+                    yield content
+                elif isinstance(content, bytes):
+                    yield content.decode('ISO-8859-1')
+                else:
+                    raise JenkinsAPIException('Unknown content type for console')
             size = resp.headers['X-Text-Size']
             more_data = resp.headers.get('X-More-Data')
+            sleep(interval)
 
     def get_estimated_duration(self):
         """
